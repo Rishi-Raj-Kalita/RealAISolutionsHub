@@ -4,10 +4,19 @@ from pydantic import BaseModel, Field
 load_dotenv()
 import pandas as pd
 import time
+from langchain_community.document_loaders import CSVLoader
+from pathlib import Path
+import os
+import faiss
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
 total_owe_previous=(15000+5161+7742+0.18)
-initial_balance=1083856.67
-current_balance=1083856.67
+initial_balance=250000.00
+current_balance=250000.00
 
 categories = ['food', 'rent', 'family', 'shopping', 'self-care', 'transport', 'other', 'unknown']
 users = ['pallavi', 'prateek', 'aws', 'arshad', 'manas']
@@ -21,6 +30,24 @@ class Narration_Type(BaseModel):
     lent_by: str = Field(description="The person to whom the money is lent from the list 'pallavi', 'prateek', 'aws', 'arshad', 'manas','none'")
     reasoning: str = Field(description="The reasoning behind the selecting transaction_type, the amount of money spent by me and lent")
 
+def get_model_rag(model: str = 'deepseek-r1:7b', provider: str = 'local'):
+    if (provider == 'local'):
+        from langchain_ollama import ChatOllama
+        llm = ChatOllama(model=model, temperature=0)
+        return llm
+    elif (provider == 'aws'):
+        from langchain_aws import ChatBedrockConverse
+        import boto3
+        access_key = os.getenv('ACCESS_KEY')
+        secret_key = os.getenv('SECRET_KEY')
+        bedrock_client = boto3.client('bedrock-runtime',
+                                      region_name='us-east-1',
+                                      aws_access_key_id=access_key,
+                                      aws_secret_access_key=secret_key)
+        llm = ChatBedrockConverse(client=bedrock_client,
+                                  model=model,
+                                  temperature=0)
+        return llm
 
 def get_model(model: str = 'deepseek-r1:7b', provider: str = 'local'):
     if (provider == 'local'):
@@ -192,7 +219,7 @@ def traverse_expense(categories:list, users:list, df:pd.DataFrame):
         
         print("-"*80)
     
-    return target_df
+    return target_df,current_balance
 
 def get_cleaned_data():
     cleaned_df=pd.read_csv('./data/cleaned/cleaned_df.csv')
@@ -270,13 +297,12 @@ def curate_data()->pd.DataFrame:
     
     return df
 
-def check_balance():
+def check_balance(current_balance):
     global total_owe_previous
     df_curated=pd.read_csv('./data/curated/curated_df.csv')
     mine=df_curated['my_expenses'].values[0]
     lent=df_curated['user_pallavi'].values[0]+df_curated['user_prateek'].values[0]+df_curated['user_aws'].values[0]+df_curated['user_arshad'].values[0]
     global initial_balance
-    global current_balance
 
     print("Initial Balance:", initial_balance)
     print("Current Balance:", current_balance)
@@ -287,7 +313,7 @@ def check_balance():
 
     if(diff<500.00):
         print("The balance is correct")
-        return """The balance is correct.\n
+        return f"""The balance is correct.\n
         Initial Balance:{initial_balance}\n
         Current Balance:{current_balance}\n
         My Expense:{mine}
@@ -323,3 +349,50 @@ def extract_owe():
     append_to_lent_df(df_arshad, 'Arshad')
 
     return lent_df
+
+def get_data_rag():
+    cleaned_df = pd.read_csv('./data/cleaned/cleaned_df.csv')
+    rag_df = cleaned_df[['amount', 'type', 'date', 'narration']]
+    return rag_df
+
+
+
+
+def rag_expense():
+    llm = get_model_rag()
+    # llm = get_model_rag(model='anthropic.claude-3-sonnet-20240229-v1:0',
+    #                 provider='aws')
+
+    rag_df = get_data_rag()
+    file_path = './data/curated/rag_df.csv'
+    rag_df.to_csv(file_path, index=False)
+    loader = CSVLoader(file_path=file_path)
+    docs = loader.load_and_split()
+    embeddings = get_embeddings()
+    # embeddings=get_embeddings(model='amazon.titan-embed-text-v2:0', provider='aws')
+    index = faiss.IndexFlatL2(len(embeddings.embed_query("hello world")))
+    vector_store = FAISS(embedding_function=embeddings,
+                         index=index,
+                         docstore=InMemoryDocstore(),
+                         index_to_docstore_id={})
+    vector_store.add_documents(documents=docs)
+    retriever = vector_store.as_retriever()
+
+    # Set up system prompt
+    system_prompt = (
+        "You are an assistant for question-answering tasks. "
+        "Use the following pieces of retrieved context to answer "
+        "the question. If you don't know the answer, say that you "
+        "don't know. Use three sentences maximum and keep the "
+        "answer concise."
+        "\n\n"
+        "{context}")
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        ("human", "{input}"),
+    ])
+    question_answer_chain = create_stuff_documents_chain(llm, prompt)
+    rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+    return rag_chain
+

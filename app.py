@@ -17,7 +17,7 @@ st.title('Expense Manager')
 st.sidebar.title('Upload CSV')
 with st.sidebar:
     st.markdown('Upload your CSV file here')
-    uploaded_file = st.file_uploader("Choose a CSV file", type="DELIMITED")
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
     # Display categories and users in the sidebar
     categories = ['food', 'rent', 'family', 'shopping', 'self-care', 'transport', 'other', 'unknown']
@@ -60,7 +60,9 @@ if uploaded_file is not None:
         st.success('Process started') 
         with st.spinner('Processing...'):
             df=get_data(file_path)
-            target_df=traverse_expense(categories, users, df)
+            target_df, current_balance=traverse_expense(categories, users, df)
+            print("-"*80)
+            print("current balance received",current_balance)
 
         target_df.to_csv('./data/raw/target_df.csv', index=False)
         get_cleaned_data()

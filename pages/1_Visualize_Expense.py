@@ -21,6 +21,8 @@ if st.button("Curate Data"):
         # Total Expense
         total_expense = curated_df['my_expenses'].sum()
         st.write(f"Total Expense: {total_expense}")
+        balance_status=check_balance(current_balance)
+        st.markdown(balance_status)
 
         # Total expense spent in each category
         categories = ['category_food', 'category_rent', 'category_family', 'category_shopping', 'category_self-care', 'category_transport', 'category_other', 'catagory_investment']
