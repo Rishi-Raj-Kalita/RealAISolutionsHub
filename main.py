@@ -83,7 +83,7 @@ def get_embeddings(model:str='deepseek-r1:7b', provider:str='local'):
         access_key=os.getenv('ACCESS_KEY')
         secret_key=os.getenv('SECRET_KEY')
         bedrock_client=boto3.client('bedrock-runtime', region_name='us-east-1', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
-        embeddings=BedrockEmbeddings(bedrock_client, model=model)
+        embeddings=BedrockEmbeddings(client=bedrock_client, model_id=model)
         return embeddings
     
 from langchain_core.prompts import PromptTemplate
@@ -361,7 +361,7 @@ def get_data_rag():
 def rag_expense():
     llm = get_model_rag()
     # llm = get_model_rag(model='anthropic.claude-3-sonnet-20240229-v1:0',
-    #                 provider='aws')
+                    # provider='aws')
 
     rag_df = get_data_rag()
     file_path = './data/curated/rag_df.csv'

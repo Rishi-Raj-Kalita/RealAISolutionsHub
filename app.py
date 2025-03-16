@@ -57,7 +57,6 @@ if uploaded_file is not None:
     st.dataframe(df)
 
     if st.button('Start Process'):
-        st.success('Process started') 
         with st.spinner('Processing...'):
             df=get_data(file_path)
             target_df, current_balance=traverse_expense(categories, users, df)
