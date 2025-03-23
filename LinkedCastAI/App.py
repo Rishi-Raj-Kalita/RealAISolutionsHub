@@ -7,7 +7,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "graph" not in st.session_state:
-    st.session_state.graph=fetch_graph()
+    st.session_state.graph=fetch_graph(provider='llama')
 
 for message in st.session_state.messages:
     with st.chat_message(message['role']):
