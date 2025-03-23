@@ -86,7 +86,7 @@ def fetch_feeds(public_id_lists:list[str]):
     posts=[]
 
     for id in public_id_lists:
-        feed_result=api.get_profile_posts(public_id=id, post_count=2)
+        feed_result=api.get_profile_posts(public_id=id, post_count=5)
         author=feed_result[0]['actor']['name']['text']
         for idx, result in enumerate(feed_result):
             text = f"Author:{author}\n\n{result['commentary']['text']['text']}"
@@ -148,7 +148,8 @@ def fetch_graph(provider, model):
                 -Include the author's name in each selected summary.
                 -Format your output in a structured way for readability.
                 -Additionally, use the selected summaries to create a podcast script summarizing the key insights from these top 5 posts. Talk as in you are giving the podcast to an audience, so write the script in first person
-            User: Linkedin Post \n:{summaries}. Top 5 Linkedin Posts:\n\n
+                -Only put the podcast script as your output.
+            User: Linkedin Post \n:{summaries}. In todays podcast we have:\n\n
             """,
             input_variables=['summaries'])
         chain = prompt | model

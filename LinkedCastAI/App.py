@@ -3,17 +3,11 @@ import requests
 from main import *
 
 
-'''
-akshay-pachaar
-areganti
-nir-diamant-ai
-'''
-
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "graph" not in st.session_state:
-    st.session_state.graph=fetch_graph(provider='aws', model='anthropic.claude-3-sonnet-20240229-v1:0')
+    st.session_state.graph=fetch_graph()
 
 for message in st.session_state.messages:
     with st.chat_message(message['role']):
@@ -21,7 +15,7 @@ for message in st.session_state.messages:
 
 # Streamlit app
 def main():
-    st.title("LinkedIn Feeds Fetcher")
+    st.title("LinkedCastAI (Linkedin + Podcast + AI)")
     st.sidebar.header("Input Public IDs")
 
     # Input: List of LinkedIn public IDs
