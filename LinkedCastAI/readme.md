@@ -3,6 +3,9 @@
 ## Overview
 This project automates the process of fetching, summarizing, and converting LinkedIn posts into an audio podcast. It allows users to stay updated with the most valuable LinkedIn insights without having to manually scroll through posts. The generated podcast summarizes the top 5 LinkedIn posts for the day, making it perfect for listening during a commute or free time.
 
+# Note : 
+This is not the official API for linkedin, use at your own risk.
+
 ## Features
 - ✅ Fetches the top 5 recent LinkedIn posts from multiple users
 - ✅ Summarizes the key points using a local Llama3.1 model
