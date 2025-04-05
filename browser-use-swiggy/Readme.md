@@ -15,16 +15,11 @@ This project demonstrates an AI agent that can autonomously navigate web interfa
 
 1. Clone the repository:
    ```
-   git clone https://github.com/Rishi-Raj-Kalita/.git
+   https://github.com/Rishi-Raj-Kalita/RealAISolutionsHub.git
    cd browser-use-swiggy
    ```
 
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-
-3. Create a `.env` file in the project root with the following variables:
+2. Create a `.env` file in the project root with the following variables:
    ```
    ACCESS_KEY=your_aws_access_key
    SECRET_KEY=your_aws_secret_key
@@ -35,27 +30,9 @@ This project demonstrates an AI agent that can autonomously navigate web interfa
 
 Run the agent with the default configuration:
 ```
-python main.py
+python browser-use.py
 ```
 
-### Configuration Options
-
-The agent can be configured to use different LLM models:
-
-- Local models via Ollama:
-  ```python
-  llm = get_model(model='deepseek-r1:7b', provider='local')
-  ```
-
-- Llama model via Ollama:
-  ```python
-  llm = get_model(provider='llama')
-  ```
-
-- AWS Bedrock models:
-  ```python
-  llm = get_model(model='anthropic.claude-3-5-sonnet-20240620-v1:0', provider='aws')
-  ```
 
 ### Customizing Tasks
 
@@ -80,19 +57,3 @@ tasks = """
    - Performs the action (clicking, typing, etc.)
 4. The entire process is monitored through Laminar.ai for debugging and analysis
 
-## Dependencies
-
-- browser_use: For browser automation capabilities
-- langchain_ollama: Integration with local Ollama models
-- langchain_aws: Integration with AWS Bedrock models
-- lmnr: Laminar.ai client library for observability
-- dotenv: Environment variable management
-- boto3: AWS SDK for Python
-
-## License
-
-[Your license information here]
-
-## Contributing
-
-[Your contribution guidelines here]
