@@ -30,3 +30,6 @@ __pycache__/
 ExpenseManager/data/source/
 MCP-Linkedin-Gmail-Calendar/.venv/
 MCP-Linkedin-Gmail-Calendar/credentials/
+browser-use-swiggy/.venv
+browser-use-swiggy/logs
+ExpenseManager/data/
