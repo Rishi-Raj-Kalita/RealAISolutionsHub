@@ -1,12 +1,10 @@
 import os
 from dotenv import load_dotenv
-from browser_use import Agent
 from langchain_ollama import ChatOllama
 from langchain_aws import ChatBedrockConverse
 import boto3
 import boto3
 import asyncio
-from browser_use import Agent, Browser, BrowserConfig
 from lmnr import Laminar
 
 load_dotenv()
